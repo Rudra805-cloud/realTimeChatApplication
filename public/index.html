@@ -146,11 +146,9 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      const socket = io();
-
+      const socket = io(); 
       const chat = document.getElementById("chat");
       const usersList = document.getElementById("users");
-
       const messageForm = document.getElementById("message-form");
       const messageInput = document.getElementById("message-input");
 
@@ -163,19 +161,21 @@
       // JOIN CHAT
       joinBtn.addEventListener("click", () => {
         const enteredUsername = usernameInput.value.trim();
-
-        if (!enteredUsername) {
-          alert("Please enter username");
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if(!enteredUsername){
+          alert("enter a user name")
           return;
         }
-        if (enteredUsername.length>15) {
-          alert("Username must be 15 characters or less");
+        if(enteredUsername.length>15){
+             alert("Username cannot exceed 15 characters")
           return;
         }
-
+        if (!usernameRegex.test(enteredUsername)) {
+          alert("Username can only contain letters, numbers, and underscores");
+          return;
+        }
         username = enteredUsername;
         isLoggedIn = true;
-
         socket.emit("join", username);
 
         document.getElementById("join-screen").style.display = "none";
@@ -190,16 +190,23 @@
 
       // USER LEFT
       socket.on("userLeft", (user) => {
+        
+        if(!user){
+          return;
+        }
         addMessage(`${user} has left the chat`);
       });
 
       // USER LIST
       socket.on("userList", (users) => {
         if (!usersList) return;
+        usersList.innerHTML = "";
 
-        usersList.innerHTML = users
-          .map((user) => `<li>${user}</li>`)
-          .join("");
+        users.forEach((user) => {
+        const li = document.createElement("li");
+        li.textContent = user;
+        usersList.appendChild(li);
+        });
       });
 
       // RECEIVE MESSAGE

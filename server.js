@@ -18,7 +18,10 @@ io.on("connection", (socket) => {
 
   //handel user when they joing chat
   socket.on("join", (userName) => {
-    if (!userName || userName.trim() === "") {
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!userName || !usernameRegex.test(userName)|| typeof(userName) !== "string" ||
+    userName.length > 15 ||userName.trim() === "") {
+      console.log("validation failed")
       return;
     }
 
@@ -29,6 +32,7 @@ io.on("connection", (socket) => {
     //brodcast  to all clients/user that a new user has join
     io.emit("userJoined", userName);
     //send the updated user list to all client
+
     io.emit("userList", Array.from(users));
   });
 
@@ -39,6 +43,9 @@ io.on("connection", (socket) => {
   });
   //handel user disconnection
   socket.on("disconnect", () => {
+    if(!socket.userName){
+      return;
+    }
     console.log("A user disconnected", socket.userName);
 
     users.delete(socket.userName);

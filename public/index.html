@@ -146,7 +146,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      const socket = io(); 
+      const socket = io();
       const chat = document.getElementById("chat");
       const usersList = document.getElementById("users");
       const messageForm = document.getElementById("message-form");
@@ -162,12 +162,12 @@
       joinBtn.addEventListener("click", () => {
         const enteredUsername = usernameInput.value.trim();
         const usernameRegex = /^[a-zA-Z0-9_]+$/;
-        if(!enteredUsername){
-          alert("enter a user name")
+        if (!enteredUsername) {
+          alert("enter a user name");
           return;
         }
-        if(enteredUsername.length>15){
-             alert("Username cannot exceed 15 characters")
+        if (enteredUsername.length > 15) {
+          alert("Username cannot exceed 15 characters");
           return;
         }
         if (!usernameRegex.test(enteredUsername)) {
@@ -177,12 +177,22 @@
         username = enteredUsername;
         isLoggedIn = true;
         socket.emit("join", username);
+      });
+      socket.on("joinSuccess", () => {
+        isLoggedIn = true;
 
         document.getElementById("join-screen").style.display = "none";
         document.getElementById("chat-container").style.display = "flex";
         document.getElementById("user-list").style.display = "block";
       });
+      //user name check
+      socket.on("errorMessage", (message) => {
+        alert(message);
 
+        // IMPORTANT: reset state
+        isLoggedIn = false;
+        username = "";
+      });
       // USER JOINED
       socket.on("userJoined", (user) => {
         addMessage(`${user} has joined the chat`);
@@ -190,8 +200,7 @@
 
       // USER LEFT
       socket.on("userLeft", (user) => {
-        
-        if(!user){
+        if (!user) {
           return;
         }
         addMessage(`${user} has left the chat`);
@@ -203,9 +212,9 @@
         usersList.innerHTML = "";
 
         users.forEach((user) => {
-        const li = document.createElement("li");
-        li.textContent = user;
-        usersList.appendChild(li);
+          const li = document.createElement("li");
+          li.textContent = user;
+          usersList.appendChild(li);
         });
       });
 

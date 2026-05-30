@@ -26,13 +26,19 @@ io.on("connection", (socket) => {
     }
 
     userName = userName.trim();
-    socket.userName = userName;
+    
+    if(users.has(userName)){
+       socket.emit("errorMessage", "Username already exists");
+      return;
+    } 
     users.add(userName);
-
+    socket.userName = userName;
+    
+    socket.emit("joinSuccess");  
     //brodcast  to all clients/user that a new user has join
     io.emit("userJoined", userName);
     //send the updated user list to all client
-
+     
     io.emit("userList", Array.from(users));
   });
 
